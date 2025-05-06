@@ -1,0 +1,1241 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="D-ril Spa offers rejuvenating spa services in Ibadan, Nigeria, including massages, facials, and body treatments.">
+    <meta name="keywords" content="spa, massage, facial, Ibadan, Nigeria, wellness, relaxation">
+    <meta name="author" content="D-ril Spa">
+    <meta property="og:title" content="D-ril Spa - Rejuvenate Your Mind and Body">
+    <meta property="og:description" content="Experience holistic wellness at D-ril Spa in Ibadan, Nigeria.">
+    <meta property="og:image" content="https://i.imgur.com/FotJXwa.jpg">
+    <meta property="og:url" content="https://yourwebsite.com">
+    <meta property="og:type" content="website">
+    <title>D-ril Spa - Rejuvenate Your Mind and Body</title>
+    <link rel="icon" type="image/png" href="https://via.placeholder.com/32">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baskervville:wght@400;700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8b6b61;
+            --secondary-color: #d7ccc8;
+            --accent-color: #a1887f;
+            --text-color: #5d4037;
+            --light-color: #efebe9;
+            --white: #fff;
+            --black: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Baskervville', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://i.imgur.com/FotJXwa.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+            color: var(--white);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            font-family: 'Baskervville', serif;
+        }
+        
+        .tagline {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        nav.scrolled {
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            font-family: 'Baskervville', serif;
+        }
+        
+        nav.scrolled .nav-logo {
+            color: var(--primary-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        nav.scrolled .nav-links a {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .hamburger {
+            display: none;
+            cursor: pointer;
+        }
+        
+        .hamburger.active .fa-bars::before {
+            content: '\f00d';
+        }
+        
+        /* About Section */
+        .about {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.5rem;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .about-item {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background-color: var(--light-color);
+        }
+        
+        .about-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .about-item i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .about-item h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        /* Services Section */
+        .services {
+            padding: 100px 0;
+            background-color: var(--light-color);
+        }
+        
+        .services-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .service-item {
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .service-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .service-img {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .service-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .service-item:hover .service-img img {
+            transform: scale(1.1);
+        }
+        
+        .service-text {
+            padding: 30px;
+        }
+        
+        .service-text h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .service-text ul {
+            list-style-position: inside;
+            margin-bottom: 15px;
+        }
+        
+        .service-text ul li {
+            margin-bottom: 8px;
+        }
+        
+        /* Packages Section */
+        .packages {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+        
+        .packages-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .package-item {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .package-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--primary-color);
+        }
+        
+        .package-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .package-item h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .package-item p {
+            margin-bottom: 30px;
+        }
+        
+        .package-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        /* Booking Section */
+        .booking {
+            padding: 100px 0;
+            background-color: var(--light-color);
+        }
+        
+        .booking-form {
+            max-width: 800px;
+            margin: 50px auto 0;
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .booking-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 1.5rem;
+            line-height: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .step h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        /* Experience Section */
+        .experience {
+            padding: 100px 0;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--white);
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .experience {
+                background-attachment: scroll;
+            }
+        }
+        
+        .experience .section-title {
+            color: var(--white);
+        }
+        
+        .experience .section-title::after {
+            background-color: var(--white);
+        }
+        
+        .experience-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .testimonials {
+            margin-top: 50px;
+        }
+        
+        .testimonial-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        .testimonial-author {
+            font-weight: 600;
+        }
+        
+        /* Products Section */
+        .products {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+        
+        .products-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .product-item {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .product-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-img {
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-item:hover .product-img img {
+            transform: scale(1.1);
+        }
+        
+        .product-text {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .product-text h3 {
+            margin-bottom: 10px;
+        }
+        
+        /* Contact Section */
+        .contact {
+            padding: 100px 0;
+            background-color: var(--light-color);
+        }
+        
+        .contact-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+            margin-top: 50px;
+        }
+        
+        .contact-info {
+            margin-bottom: 30px;
+        }
+        
+        .contact-info h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .contact-info p {
+            margin-bottom: 10px;
+        }
+        
+        .contact-info i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .social-links {
+            margin-top: 30px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-5px);
+        }
+        
+        .map-container {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 30px 0;
+            text-align: center;
+        }
+        
+        .footer-text {
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links li {
+            margin: 0 15px;
+        }
+        
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+            }
+            
+            .tagline {
+                font-size: 1.3rem;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background-color: var(--white);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.5s ease;
+                z-index: 1001;
+            }
+            
+            .nav-links.active {
+                left: 0;
+            }
+            
+            .nav-links li {
+                margin: 15px 0;
+            }
+            
+            .nav-links a {
+                color: var(--primary-color);
+                font-size: 1.2rem;
+            }
+            
+            .hamburger {
+                display: block;
+                color: var(--white);
+                font-size: 1.5rem;
+            }
+            
+            nav.scrolled .hamburger {
+                color: var(--primary-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="container">
+            <a href="#" class="nav-logo">D-ril Spa</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#packages">Packages</a></li>
+                <li><a href="#booking">Booking</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header id="home">
+        <h1 class="logo">D-ril Spa</h1>
+        <p class="tagline">Rejuvenate Your Mind and Body</p>
+        <a href="#booking" class="btn">Book An Appointment</a>
+    </header>
+
+    <main>
+        <!-- About Section -->
+        <section class="about" id="about">
+            <div class="container">
+                <h2 class="section-title">About D-ril Spa</h2>
+                <div class="about-content">
+                    <div class="about-item">
+                        <i class="fas fa-leaf"></i>
+                        <h3>Holistic Wellness Philosophy</h3>
+                        <p>Inspired by nature, D-ril Spa promotes whole-body harmony and balance.</p>
+                    </div>
+                    <div class="about-item">
+                        <i class="fas fa-spa"></i>
+                        <h3>Expert Therapists</h3>
+                        <p>Licensed professionals deliver personalized and effective treatments.</p>
+                    </div>
+                    <div class="about-item">
+                        <i class="fas fa-recycle"></i>
+                        <h3>Organic & Sustainable</h3>
+                        <p>We prioritize eco-friendly products for your well-being and the planet.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services" id="services">
+            <div class="container">
+                <h2 class="section-title">Our Services</h2>
+                <div class="services-content">
+                    <div class="service-item">
+                        <div class="service-img">
+                            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Massage Therapy" loading="lazy">
+                        </div>
+                        <div class="service-text">
+                            <h3>Massage Therapy</h3>
+                            <ul>
+                                <li>Swedish, Deep Tissue, Hot Stone, Aromatherapy</li>
+                                <li>Deep Tissue: releases chronic muscle tension</li>
+                                <li>Stress and pain relief</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-img">
+                            <img src="https://i.imgur.com/jWcOObX.jpg" alt="Facial Treatments" loading="lazy">
+                        </div>
+                        <div class="service-text">
+                            <h3>Facial Treatments</h3>
+                            <ul>
+                                <li>Hydrating, Anti-Aging, Acne Treatment</li>
+                                <li>Hydrating: restores moisture and radiance</li>
+                                <li>Sauna</li>
+                                <li>Exfoliation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-img">
+                            <img src="https://i.imgur.com/qbDpYsK.jpg" alt="Body Treatments" loading="lazy">
+                        </div>
+                        <div class="service-text">
+                            <h3>Body Treatments</h3>
+                            <ul>
+                                <li>Scrubs, Wraps, Ayurvedic Treatments</li>
+                                <li>Pedicure</li>
+                                <li>Manicure</li>
+                                <li>Acupuncture</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Packages Section -->
+        <section class="packages" id="packages">
+            <div class="container">
+                <h2 class="section-title">Packages & Specials</h2>
+                <div class="packages-content">
+                    <div class="package-item">
+                        <h3>Bridal Pamper Indulgence</h3>
+                        <p>Full Body Treatment, Underarm & Brazilian wax, pedicure & Manicure, Massage</p>
+                        <div class="package-price">₦100,000</div>
+                        <a href="#booking" class="btn">Book Now</a>
+                    </div>
+                    <div class="package-item">
+                        <h3>Couple Pamper Package</h3>
+                        <p>Massage, Sauna, Facial, Pedicure</p>
+                        <div class="package-price">₦96,000</div>
+                        <a href="#booking" class="btn">Book Now</a>
+                    </div>
+                    <div class="package-item">
+                        <h3>Birthday Indulgence</h3>
+                        <p>Massage, Facial, Pedicure</p>
+                        <div class="package-price">₦48,000</div>
+                        <a href="#booking" class="btn">Book Now</a>
+                    </div>
+                    <div class="package-item">
+                        <h3>Girls/Guys Day Out</h3>
+                        <p>Facial, Massage, Arm & Leg Wax, Pedicure</p>
+                        <div class="package-price">₦48,000</div>
+                        <a href="#booking" class="btn">Book Now</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Section -->
+        <section class="booking" id="booking">
+            <div class="container">
+                <h2 class="section-title">Online Booking</h2>
+                <div class="booking-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Choose Your Service</h3>
+                        <p>Select from massage, facial, body treatments, and more.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Pick Date & Time</h3>
+                        <p>Check therapist availability with integrated calendar view.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Secure Payment</h3>
+                        <p>Safe checkout with Stripe payment processing.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Create an Account</h3>
+                        <p>Save details for faster future bookings.</p>
+                    </div>
+                </div>
+
+                <div class="booking-form">
+                    <form id="appointmentForm">
+                        <div class="form-group">
+                            <label for="service">Select Service</label>
+                            <select id="service" name="service" required aria-required="true">
+                                <option value="">-- Please select a service --</option>
+                                <optgroup label="Massage Therapy">
+                                    <option value="swedish">Swedish Massage</option>
+                                    <option value="deep-tissue">Deep Tissue Massage</option>
+                                    <option value="hot-stone">Hot Stone Massage</option>
+                                    <option value="aromatherapy">Aromatherapy Massage</option>
+                                </optgroup>
+                                <optgroup label="Facial Treatments">
+                                    <option value="hydrating-facial">Hydrating Facial</option>
+                                    <option value="anti-aging">Anti-Aging Facial</option>
+                                    <option value="acne-treatment">Acne Treatment Facial</option>
+                                </optgroup>
+                                <optgroup label="Body Treatments">
+                                    <option value="body-scrub">Body Scrub</option>
+                                    <option value="ayurvedic">Ayurvedic Treatment</option>
+                                    <option value="pedicure">Pedicure</option>
+                                    <option value="manicure">Manicure</option>
+                                    <option value="acupuncture">Acupuncture</option>
+                                </optgroup>
+                            </select>
+                            <span class="error-message">Please select a service.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="package">Select Package (Optional)</label>
+                            <select id="package" name="package">
+                                <option value="">-- No package --</option>
+                                <option value="bridal">Bridal Pamper Indulgence (₦100,000)</option>
+                                <option value="couple">Couple Pamper Package (₦96,000)</option>
+                                <option value="birthday">Birthday Indulgence (₦48,000)</option>
+                                <option value="day-out">Girls/Guys Day Out (₦48,000)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Appointment Date</label>
+                            <input type="date" id="date" name="date" required aria-required="true">
+                            <span class="error-message">Please select a future date.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="time">Appointment Time</label>
+                            <input type="time" id="time" name="time" min="09:00" max="18:00" required aria-required="true">
+                            <span class="error-message">Please select a valid time.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required aria-required="true">
+                            <span class="error-message">Please enter your full name.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required aria-required="true">
+                            <span class="error-message">Please enter a valid email.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required aria-required="true">
+                            <span class="error-message">Please enter a valid phone number.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Special Requests</label>
+                            <textarea id="notes" name="notes"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">Book Appointment</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section class="experience" id="experience">
+            <div class="container">
+                <h2 class="section-title">D-ril Spa Experience</h2>
+                <div class="experience-content">
+                    <h3>Tranquil Atmosphere</h3>
+                    <p>Designed for relaxation with calming music and aromatherapy.</p>
+                    
+                    <div class="testimonials">
+                        <div class="testimonial-item">
+                            <p class="testimonial-text">D-ril Spa is a multiple Award Winning Med Spa</p>
+                            <p class="testimonial-author">- Happy Client</p>
+                        </div>
+                        <div class="testimonial-item">
+                            <p class="testimonial-text">A truly relaxing and rejuvenating experience.</p>
+                            <p class="testimonial-author">- Satisfied Customer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section class="products" id="products">
+            <div class="container">
+                <h2 class="section-title">Our Products</h2>
+                <div class="products-content">
+                    <div class="product-item">
+                        <div class="product-img">
+                            <img src="https://i.imgur.com/TZeq9qn.jpg" alt="Organic Skincare" loading="lazy">
+                        </div>
+                        <div class="product-text">
+                            <h3>Organic Skincare</h3>
+                            <p>All-natural ingredients to nourish and protect your skin.</p>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-img">
+                            <img src="https://i.imgur.com/LgRjaCt.jpg" alt="Featured Brands" loading="lazy">
+                        </div>
+                        <div class="product-text">
+                            <h3>Featured Brands</h3>
+                            <p>Brand A, Brand B, Brand C</p>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-img">
+                            <img src="https://i.imgur.com/dJeemU6.jpg" alt="Purchase Options" loading="lazy">
+                        </div>
+                        <div class="product-text">
+                            <h3>Purchase Options</h3>
+                            <p>Available online and in-spa for your convenience.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact" id="contact">
+            <div class="container">
+                <h2 class="section-title">Contact & Location</h2>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Contact Info</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> 11 Okunola Abass street, off Favos Junction, New Bodija, Ibadan, Nigeria 200212</p>
+                        <p><i class="fas fa-phone"></i> +2348033524850</p>
+                        <p><i class="fas fa-envelope"></i> drilspa2010@gmail.com</p>
+                        <p><i class="fas fa-calendar-alt"></i> Week days and weekends</p>
+                        
+                        <div class="social-links">
+                            <a href="https://www.instagram.com/drilspa/" target="_blank"><i class="fab fa-instagram"></i></a>
+                            <a href="https://www.facebook.com/drilspa/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        </div>
+                    </div>
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.011560453658!2d3.896214314266957!3d7.412879394621767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x10398d8f8e6b7f1b%3A0x7c0f6b8e9f4b2c3!2sOkunola%20Abass%20St%2C%20Ibadan%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1698765432100!5m2!1sen!2sng" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="footer-text">D-ril Spa - Rejuvenate Your Mind and Body</p>
+            <ul class="footer-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#packages">Packages</a></li>
+                <li><a href="#booking">Booking</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <p class="copyright">© <script>document.write(new Date().getFullYear());</script> D-ril Spa. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    if (navLinks.classList.contains('active')) {
+                        navLinks.classList.remove('active');
+                        hamburger.classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // Animation on scroll with IntersectionObserver
+        window.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.about-item, .service-item, .package-item, .step, .product-item');
+            
+            elements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'all 0.5s ease';
+            });
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+            
+            elements.forEach(element => observer.observe(element));
+        });
+
+        // Form submission with Make.com integration
+        const makeComURL = 'https://hook.eu2.make.com/82vj3lmp3iw67ep0rmmcnva71a0kpyqu'; // Your Make.com webhook URL
+
+        const appointmentForm = document.getElementById('appointmentForm');
+        if (appointmentForm) {
+          appointmentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Reset error messages
+            document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
+            
+            let isValid = true;
+            const service = document.getElementById('service').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const package = document.getElementById('package').value;
+            const notes = document.getElementById('notes').value;
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            // Validate service
+            if (!service) {
+              document.querySelector('#service + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            // Validate date
+            const today = new Date().toISOString().split('T')[0];
+            if (date < today) {
+              document.querySelector('#date + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            // Validate time
+            if (!time || time < '09:00' || time > '18:00') {
+              document.querySelector('#time + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            // Validate name
+            if (!name.trim()) {
+              document.querySelector('#name + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+              document.querySelector('#email + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            // Validate phone
+            const phoneRegex = /^\+?\d{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+              document.querySelector('#phone + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            if (isValid) {
+              submitBtn.classList.add('loading');
+              submitBtn.textContent = 'Booking...';
+              
+              // Generate timestamp for the submission
+              const timestamp = new Date().toISOString();
+              
+              const formData = {
+                values: [[timestamp, name, email, phone, service, date, time, package || 'None', notes || '']]
+              };
+              
+              try {
+                const response = await fetch(makeComURL, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                  alert('Your appointment has been booked successfully! Check your email for confirmation.');
+                  appointmentForm.reset();
+                } else {
+                  throw new Error('Failed to save booking.');
+                }
+              } catch (error) {
+                alert('Error: ' + error.message);
+              } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Book Appointment';
+              }
+            }
+          });
+        }
+    </script>
+</body>
+</html>
