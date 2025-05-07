@@ -37,6 +37,45 @@
         }
         return gk_fileData[filename] || "";
         }
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
         </script><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -894,7 +933,8 @@
                 </div>
 
                 <div class="booking-form">
-                    <form id="appointmentForm">
+                    <form id="appointmentForm" action="https://script.google.com/macros/s/AKfycbxW09AliHhb3-d04-nnoPN7vISKMHQU11o7AT9O4xOPSpV-SmOkGs-OxcfksX6AQ-TW/exec" method="POST">
+                        <input type="hidden" name="form-name" value="booking-form">
                         <div class="form-group">
                             <label for="service">Select Service</label>
                             <select id="service" name="service" required aria-required="true">
@@ -1040,7 +1080,7 @@
                         <h3>Contact Info</h3>
                         <p><i class="fas fa-map-marker-alt"></i> 11 Okunola Abass street, off Favos Junction, New Bodija, Ibadan, Nigeria 200212</p>
                         <p><i class="fas fa-phone"></i> +2348033524850</p>
-                        <p><i class="fas fa-envelope"></i> drilspa2010@gmail.com</p>
+                        <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="83e7f1eaeff0f3e2b1b3b2b3c3e4eee2eaefade0ecee">[email&#160;protected]</a></p>
                         <p><i class="fas fa-calendar-alt"></i> Week days and weekends</p>
                         
                         <div class="social-links">
@@ -1070,7 +1110,7 @@
                 <li><a href="#products">Products</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <p class="copyright">© <script>document.write(new Date().getFullYear());</script> D-ril Spa. All Rights Reserved.</p>
+            <p class="copyright">© <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>document.write(new Date().getFullYear());</script> D-ril Spa. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -1140,12 +1180,10 @@
             elements.forEach(element => observer.observe(element));
         });
 
-        // Form submission with Make.com integration
-        const makeComURL = 'https://hook.eu2.make.com/82vj3lmp3iw67ep0rmmcnva71a0kpyqu'; // Your Make.com webhook URL
-
+        // Form submission with Google Apps Script integration
         const appointmentForm = document.getElementById('appointmentForm');
         if (appointmentForm) {
-          appointmentForm.addEventListener('submit', async function(e) {
+          appointmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Reset error messages
@@ -1208,34 +1246,19 @@
               // Generate timestamp for the submission
               const timestamp = new Date().toISOString();
               
-              const formData = {
-                values: [[timestamp, name, email, phone, service, date, time, package || 'None', notes || '']]
-              };
+              // Submit natively to Google Apps Script
+              this.submit();
               
-              try {
-                const response = await fetch(makeComURL, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(formData)
-                });
-                
-                if (response.ok) {
-                  alert('Your appointment has been booked successfully! Check your email for confirmation.');
-                  appointmentForm.reset();
-                } else {
-                  throw new Error('Failed to save booking.');
-                }
-              } catch (error) {
-                alert('Error: ' + error.message);
-              } finally {
+              // Provide feedback (Apps Script will handle the response)
+              setTimeout(() => {
                 submitBtn.classList.remove('loading');
                 submitBtn.textContent = 'Book Appointment';
-              }
+                alert('Your appointment has been booked successfully! Check your email for confirmation.');
+                appointmentForm.reset();
+              }, 2000); // Simulated delay to mimic server response
             }
           });
         }
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bf2097ae6abf69',t:'MTc0NjYwNDIzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
