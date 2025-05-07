@@ -37,46 +37,8 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+</script>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -933,7 +895,7 @@
                 </div>
 
                 <div class="booking-form">
-                    <form id="appointmentForm" action="https://script.google.com/macros/s/AKfycbxW09AliHhb3-d04-nnoPN7vISKMHQU11o7AT9O4xOPSpV-SmOkGs-OxcfksX6AQ-TW/exec" method="POST">
+                    <form id="appointmentForm" action="https://script.google.com/macros/s/AKfycbzX-LG0aZ-lA3HBBDxjWBRT2F8S9RLjzPMX_rMHKjFiZVCbH7x1vUNHRS8A2q496puT/exec" method="POST">
                         <input type="hidden" name="form-name" value="booking-form">
                         <div class="form-group">
                             <label for="service">Select Service</label>
@@ -1183,82 +1145,95 @@
         // Form submission with Google Apps Script integration
         const appointmentForm = document.getElementById('appointmentForm');
         if (appointmentForm) {
-          appointmentForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Reset error messages
-            document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
-            
-            let isValid = true;
-            const service = document.getElementById('service').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('time').value;
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const package = document.getElementById('package').value;
-            const notes = document.getElementById('notes').value;
-            const submitBtn = this.querySelector('button[type="submit"]');
-            
-            // Validate service
-            if (!service) {
-              document.querySelector('#service + .error-message').style.display = 'block';
-              isValid = false;
-            }
-            
-            // Validate date
-            const today = new Date().toISOString().split('T')[0];
-            if (date < today) {
-              document.querySelector('#date + .error-message').style.display = 'block';
-              isValid = false;
-            }
-            
-            // Validate time
-            if (!time || time < '09:00' || time > '18:00') {
-              document.querySelector('#time + .error-message').style.display = 'block';
-              isValid = false;
-            }
-            
-            // Validate name
-            if (!name.trim()) {
-              document.querySelector('#name + .error-message').style.display = 'block';
-              isValid = false;
-            }
-            
-            // Validate email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-              document.querySelector('#email + .error-message').style.display = 'block';
-              isValid = false;
-            }
-            
-            // Validate phone
-            const phoneRegex = /^\+?\d{10,15}$/;
-            if (!phoneRegex.test(phone)) {
-              document.querySelector('#phone + .error-message').style.display = 'block';
-              isValid = false;
-            }
-            
-            if (isValid) {
-              submitBtn.classList.add('loading');
-              submitBtn.textContent = 'Booking...';
-              
-              // Generate timestamp for the submission
-              const timestamp = new Date().toISOString();
-              
-              // Submit natively to Google Apps Script
-              this.submit();
-              
-              // Provide feedback (Apps Script will handle the response)
-              setTimeout(() => {
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'Book Appointment';
-                alert('Your appointment has been booked successfully! Check your email for confirmation.');
-                appointmentForm.reset();
-              }, 2000); // Simulated delay to mimic server response
-            }
-          });
+            appointmentForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Reset error messages
+                document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
+                
+                let isValid = true;
+                const service = document.getElementById('service').value;
+                const date = document.getElementById('date').value;
+                const time = document.getElementById('time').value;
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const package = document.getElementById('package').value;
+                const notes = document.getElementById('notes').value;
+                const submitBtn = this.querySelector('button[type="submit"]');
+                
+                // Validate service
+                if (!service) {
+                    document.querySelector('#service + .error-message').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate date
+                const today = new Date().toISOString().split('T')[0];
+                if (date < today) {
+                    document.querySelector('#date + .error-message').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate time
+                if (!time || time < '09:00' || time > '18:00') {
+                    document.querySelector('#time + .error-message').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate name
+                if (!name.trim()) {
+                    document.querySelector('#name + .error-message').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.querySelector('#email + .error-message').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate phone
+                const phoneRegex = /^\+?\d{10,15}$/;
+                if (!phoneRegex.test(phone)) {
+                    document.querySelector('#phone + .error-message').style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    submitBtn.classList.add('loading');
+                    submitBtn.textContent = 'Booking...';
+                    
+                    try {
+                        const response = await fetch(this.action, {
+                            method: 'POST',
+                            body: new FormData(this)
+                        });
+                        
+                        const text = await response.text();
+                        submitBtn.classList.remove('loading');
+                        submitBtn.textContent = 'Book Appointment';
+                        
+                        if (response.ok && text === "Success") {
+                            alert('Your appointment has been booked successfully! Check your email for confirmation.');
+                            appointmentForm.reset();
+                            // Redirect to homepage
+                            window.location.hash = '#home';
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            alert('Error: ' + (text || 'Failed to book appointment. Please try again.'));
+                        }
+                    } catch (error) {
+                        submitBtn.classList.remove('loading');
+                        submitBtn.textContent = 'Book Appointment';
+                        alert('Error: ' + error.message);
+                    }
+                }
+            });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bf2097ae6abf69',t:'MTc0NjYwNDIzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bf2097ae6abf69',t:'MTc0NjYwNDIzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93c0507dbcd47bca',t:'MTc0NjYxNjY4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
 </html>
