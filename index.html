@@ -6,38 +6,38 @@
           return cell !== '' && cell != null;
         }
         function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+          if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
             try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
+              var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+              var firstSheetName = workbook.SheetNames[0];
+              var worksheet = workbook.Sheets[firstSheetName];
 
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
+              // Convert sheet to JSON to filter blank rows
+              var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+              // Filter out blank rows (rows where all cells are empty, null, or undefined)
+              var filteredData = jsonData.filter(row => row.some(filledCell));
 
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
+              // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+              var headerRowIndex = filteredData.findIndex((row, index) =>
+                row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+              );
+              // Fallback
+              if (headerRowIndex === -1 || headerRowIndex > 25) {
+                headerRowIndex = 0;
+              }
 
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
+              // Convert filtered JSON back to CSV
+              var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+              csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+              return csv;
             } catch (e) {
-                console.error(e);
-                return "";
+              console.error(e);
+              return "";
             }
+          }
+          return gk_fileData[filename] || "";
         }
-        return gk_fileData[filename] || "";
-        }
-</script>
+      </script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -728,6 +728,14 @@
             nav.scrolled .hamburger {
                 color: var(--primary-color);
             }
+            
+            .about-content, .services-content, .packages-content, .products-content, .contact-content, .booking-steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-form {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -841,25 +849,25 @@
                 <div class="packages-content">
                     <div class="package-item">
                         <h3>Bridal Pamper Indulgence</h3>
-                        <p>Full Body Treatment, Underarm & Brazilian wax, pedicure & Manicure, Massage</p>
+                        <p>Full Body Treatment, Underarm & Brazilian wax, Pedicure & Manicure, Massage</p>
                         <div class="package-price">₦100,000</div>
                         <a href="#booking" class="btn">Book Now</a>
                     </div>
                     <div class="package-item">
                         <h3>Couple Pamper Package</h3>
-                        <p>Massage, Sauna, Facial, Pedicure</p>
+                        <p>Massage, Sauna, Facial, Pedicure & Manicure for two</p>
                         <div class="package-price">₦96,000</div>
                         <a href="#booking" class="btn">Book Now</a>
                     </div>
                     <div class="package-item">
                         <h3>Birthday Indulgence</h3>
-                        <p>Massage, Facial, Pedicure</p>
+                        <p>Massage, Facial, Body Scrub, and a special gift</p>
                         <div class="package-price">₦48,000</div>
                         <a href="#booking" class="btn">Book Now</a>
                     </div>
                     <div class="package-item">
                         <h3>Girls/Guys Day Out</h3>
-                        <p>Facial, Massage, Arm & Leg Wax, Pedicure</p>
+                        <p>Group discount on Massage, Facial, and Body Treatments</p>
                         <div class="package-price">₦48,000</div>
                         <a href="#booking" class="btn">Book Now</a>
                     </div>
@@ -870,107 +878,84 @@
         <!-- Booking Section -->
         <section class="booking" id="booking">
             <div class="container">
-                <h2 class="section-title">Online Booking</h2>
+                <h2 class="section-title">Book Your Appointment</h2>
+                <form id="appointmentForm" action="https://script.google.com/macros/s/AKfycbxAc0oBqyOVqkE2A-o3nL9yDeFPM2t03dlHoGJfrQRNhMS3sJW_mSOgGDrIUgM-5VPqVw/exec" method="POST">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required>
+                        <div class="error-message">Please enter your full name</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                        <div class="error-message">Please enter a valid email address</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+234..." required>
+                        <div class="error-message">Please enter a valid phone number (e.g., +2348012345678)</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Service *</label>
+                        <select id="service" name="service" required>
+                            <option value="">Select a service</option>
+                            <option value="swedish">Swedish Massage</option>
+                            <option value="deep-tissue">Deep Tissue Massage</option>
+                            <option value="hot-stone">Hot Stone Massage</option>
+                            <option value="aromatherapy">Aromatherapy Massage</option>
+                            <option value="hydrating-facial">Hydrating Facial</option>
+                            <option value="anti-aging">Anti-Aging Facial</option>
+                            <option value="acne-treatment">Acne Treatment Facial</option>
+                            <option value="body-scrub">Body Scrub</option>
+                            <option value="ayurvedic">Ayurvedic Treatment</option>
+                            <option value="pedicure">Pedicure</option>
+                            <option value="manicure">Manicure</option>
+                            <option value="acupuncture">Acupuncture</option>
+                        </select>
+                        <div class="error-message">Please select a service</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="package">Package (Optional)</label>
+                        <select id="package" name="package">
+                            <option value="">No package</option>
+                            <option value="bridal">Bridal Pamper Indulgence</option>
+                            <option value="couple">Couple Pamper Package</option>
+                            <option value="birthday">Birthday Indulgence</option>
+                            <option value="day-out">Girls/Guys Day Out</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date *</label>
+                        <input type="date" id="date" name="date" required>
+                        <div class="error-message">Please select a future date</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time (9:00 AM - 6:00 PM) *</label>
+                        <input type="time" id="time" name="time" min="09:00" max="18:00" required>
+                        <div class="error-message">Please select a time between 9:00 AM and 6:00 PM</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Special Requests (Optional)</label>
+                        <textarea id="notes" name="notes" placeholder="E.g., allergies, preferences"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Book Appointment</button>
+                </form>
                 <div class="booking-steps">
                     <div class="step">
                         <div class="step-number">1</div>
-                        <h3>Choose Your Service</h3>
-                        <p>Select from massage, facial, body treatments, and more.</p>
+                        <h3>Choose Service</h3>
+                        <p>Select from our wide range of spa treatments.</p>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>
                         <h3>Pick Date & Time</h3>
-                        <p>Check therapist availability with integrated calendar view.</p>
+                        <p>Schedule your appointment at your convenience.</p>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
-                        <h3>Secure Payment</h3>
-                        <p>Safe checkout with Stripe payment processing.</p>
+                        <h3>Relax & Enjoy</h3>
+                        <p>Experience ultimate relaxation with our expert care.</p>
                     </div>
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <h3>Create an Account</h3>
-                        <p>Save details for faster future bookings.</p>
-                    </div>
-                </div>
-
-                <div class="booking-form">
-                    <form id="appointmentForm" action="https://script.google.com/macros/s/AKfycbxzn2QVGt7AjFKAxy7dcaUHBI6tD_HVQsA6UzqohrpR-RIp1JJGZ0R6vfJgs_SEQWnM/exec" method="POST">
-                        <input type="hidden" name="form-name" value="booking-form">
-                        <div class="form-group">
-                            <label for="service">Select Service</label>
-                            <select id="service" name="service" required aria-required="true">
-                                <option value="">-- Please select a service --</option>
-                                <optgroup label="Massage Therapy">
-                                    <option value="swedish">Swedish Massage</option>
-                                    <option value="deep-tissue">Deep Tissue Massage</option>
-                                    <option value="hot-stone">Hot Stone Massage</option>
-                                    <option value="aromatherapy">Aromatherapy Massage</option>
-                                </optgroup>
-                                <optgroup label="Facial Treatments">
-                                    <option value="hydrating-facial">Hydrating Facial</option>
-                                    <option value="anti-aging">Anti-Aging Facial</option>
-                                    <option value="acne-treatment">Acne Treatment Facial</option>
-                                </optgroup>
-                                <optgroup label="Body Treatments">
-                                    <option value="body-scrub">Body Scrub</option>
-                                    <option value="ayurvedic">Ayurvedic Treatment</option>
-                                    <option value="pedicure">Pedicure</option>
-                                    <option value="manicure">Manicure</option>
-                                    <option value="acupuncture">Acupuncture</option>
-                                </optgroup>
-                            </select>
-                            <span class="error-message">Please select a service.</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="package">Select Package (Optional)</label>
-                            <select id="package" name="package">
-                                <option value="">-- No package --</option>
-                                <option value="bridal">Bridal Pamper Indulgence (₦100,000)</option>
-                                <option value="couple">Couple Pamper Package (₦96,000)</option>
-                                <option value="birthday">Birthday Indulgence (₦48,000)</option>
-                                <option value="day-out">Girls/Guys Day Out (₦48,000)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="date">Appointment Date</label>
-                            <input type="date" id="date" name="date" required aria-required="true">
-                            <span class="error-message">Please select a future date.</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="time">Appointment Time</label>
-                            <input type="time" id="time" name="time" min="09:00" max="18:00" required aria-required="true">
-                            <span class="error-message">Please select a valid time.</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" required aria-required="true">
-                            <span class="error-message">Please enter your full name.</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required aria-required="true">
-                            <span class="error-message">Please enter a valid email.</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" required aria-required="true">
-                            <span class="error-message">Please enter a valid phone number.</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="notes">Special Requests</label>
-                            <textarea id="notes" name="notes"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn">Book Appointment</button>
-                    </form>
                 </div>
             </div>
         </section>
@@ -978,19 +963,17 @@
         <!-- Experience Section -->
         <section class="experience" id="experience">
             <div class="container">
-                <h2 class="section-title">D-ril Spa Experience</h2>
+                <h2 class="section-title">Your Experience</h2>
                 <div class="experience-content">
-                    <h3>Tranquil Atmosphere</h3>
-                    <p>Designed for relaxation with calming music and aromatherapy.</p>
-                    
+                    <p>At D-ril Spa, we strive to create a serene escape where you can unwind and recharge. Our expert therapists use premium organic products to tailor each treatment to your needs.</p>
                     <div class="testimonials">
                         <div class="testimonial-item">
-                            <p class="testimonial-text">D-ril Spa is a multiple Award Winning Med Spa</p>
-                            <p class="testimonial-author">- Happy Client</p>
+                            <p class="testimonial-text">"An amazing experience! The massage left me completely relaxed."</p>
+                            <p class="testimonial-author">- Amina S.</p>
                         </div>
                         <div class="testimonial-item">
-                            <p class="testimonial-text">A truly relaxing and rejuvenating experience.</p>
-                            <p class="testimonial-author">- Satisfied Customer</p>
+                            <p class="testimonial-text">"The facial was transformative—my skin feels so refreshed!"</p>
+                            <p class="testimonial-author">- Tunde K.</p>
                         </div>
                     </div>
                 </div>
@@ -1004,29 +987,29 @@
                 <div class="products-content">
                     <div class="product-item">
                         <div class="product-img">
-                            <img src="https://i.imgur.com/TZeq9qn.jpg" alt="Organic Skincare" loading="lazy">
+                            <img src="https://via.placeholder.com/250x250?text=Organic+Cream" alt="Organic Cream" loading="lazy">
                         </div>
                         <div class="product-text">
-                            <h3>Organic Skincare</h3>
-                            <p>All-natural ingredients to nourish and protect your skin.</p>
+                            <h3>Organic Moisturizing Cream</h3>
+                            <p>Deeply hydrates and nourishes your skin.</p>
                         </div>
                     </div>
                     <div class="product-item">
                         <div class="product-img">
-                            <img src="https://i.imgur.com/LgRjaCt.jpg" alt="Featured Brands" loading="lazy">
+                            <img src="https://via.placeholder.com/250x250?text=Essential+Oils" alt="Essential Oils" loading="lazy">
                         </div>
                         <div class="product-text">
-                            <h3>Featured Brands</h3>
-                            <p>Brand A, Brand B, Brand C</p>
+                            <h3>Essential Oil Set</h3>
+                            <p>Enhance your spa experience at home.</p>
                         </div>
                     </div>
                     <div class="product-item">
                         <div class="product-img">
-                            <img src="https://i.imgur.com/dJeemU6.jpg" alt="Purchase Options" loading="lazy">
+                            <img src="https://via.placeholder.com/250x250?text=Body+Scrub" alt="Body Scrub" loading="lazy">
                         </div>
                         <div class="product-text">
-                            <h3>Purchase Options</h3>
-                            <p>Available online and in-spa for your convenience.</p>
+                            <h3>Natural Body Scrub</h3>
+                            <p>Exfoliates and rejuvenates your skin naturally.</p>
                         </div>
                     </div>
                 </div>
@@ -1036,22 +1019,21 @@
         <!-- Contact Section -->
         <section class="contact" id="contact">
             <div class="container">
-                <h2 class="section-title">Contact & Location</h2>
+                <h2 class="section-title">Contact Us</h2>
                 <div class="contact-content">
                     <div class="contact-info">
-                        <h3>Contact Info</h3>
+                        <h3>Get in Touch</h3>
                         <p><i class="fas fa-map-marker-alt"></i> 11 Okunola Abass street, off Favos Junction, New Bodija, Ibadan, Nigeria 200212</p>
                         <p><i class="fas fa-phone"></i> +2348033524850</p>
-                        <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3e7f1eaeff0f3e2b1b3b2b3c3e4eee2eaefade0ecee">[email protected]</a></p>
-                        <p><i class="fas fa-calendar-alt"></i> Week days and weekends</p>
-                        
+                        <p><i class="fas fa-envelope"></i> info@drilspa.com</p>
                         <div class="social-links">
-                            <a href="https://www.instagram.com/drilspa/" target="_blank"><i class="fab fa-instagram"></i></a>
-                            <a href="https://www.facebook.com/drilspa/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
                         </div>
                     </div>
                     <div class="map-container">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.011560453658!2d3.896214314266957!3d7.412879394621767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x10398d8f8e6b7f1b%3A0x7c0f6b8e9f4b2c3!2sOkunola%20Abass%20St%2C%20Ibadan%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1698765432100!5m2!1sen!2sng" allowfullscreen="" loading="lazy"></iframe>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3952.058714541083!2d3.911531315294901!3d7.412573194814093!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x10398e7a7f5a5f2b%3A0x8c3a8f7e8e7f9b2a!2sNew%20Bodija%2C%20Ibadan!5e0!3m2!1sen!2sng!4v1623456789!5m2!1sen!2sng" allowfullscreen="" loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
@@ -1061,24 +1043,27 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p class="footer-text">D-ril Spa - Rejuvenate Your Mind and Body</p>
+            <p class="footer-text">© 2025 D-ril Spa. All rights reserved.</p>
             <ul class="footer-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#packages">Packages</a></li>
-                <li><a href="#booking">Booking</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#products">Products</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#privacy">Privacy Policy</a></li>
+                <li><a href="#terms">Terms of Service</a></li>
             </ul>
-            <p class="copyright">© <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>document.write(new Date().getFullYear());</script> D-ril Spa. All Rights Reserved.</p>
+            <p class="copyright">Designed with <i class="fas fa-heart" style="color: var(--accent-color);"></i> by Your Team</p>
         </div>
     </footer>
 
+    <!-- JavaScript -->
     <script>
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
+        // Navigation Toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Sticky Navigation
+        window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) {
                 navbar.classList.add('scrolled');
@@ -1087,152 +1072,83 @@
             }
         });
 
-        // Mobile menu toggle
-        const hamburger = document.querySelector('.hamburger');
-        const navLinks = document.querySelector('.nav-links');
-
-        hamburger.addEventListener('click', function() {
-            navLinks.classList.toggle('active');
-            this.classList.toggle('active');
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    if (navLinks.classList.contains('active')) {
-                        navLinks.classList.remove('active');
-                        hamburger.classList.remove('active');
-                    }
-                }
-            });
-        });
-
-        // Animation on scroll with IntersectionObserver
-        window.addEventListener('DOMContentLoaded', function() {
-            const elements = document.querySelectorAll('.about-item, .service-item, .package-item, .step, .product-item');
-            
-            elements.forEach(element => {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(20px)';
-                element.style.transition = 'all 0.5s ease';
-            });
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.3 });
-            
-            elements.forEach(element => observer.observe(element));
-        });
-
         // Form submission with Google Apps Script integration
         const appointmentForm = document.getElementById('appointmentForm');
         if (appointmentForm) {
-            appointmentForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
+          appointmentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
+            
+            let isValid = true;
+            const service = document.getElementById('service').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            if (!service) {
+              document.querySelector('#service + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            const today = new Date().toISOString().split('T')[0];
+            if (date < today) {
+              document.querySelector('#date + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            if (!time || time < '09:00' || time > '18:00') {
+              document.querySelector('#time + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            if (!name.trim()) {
+              document.querySelector('#name + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+              document.querySelector('#email + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            const phoneRegex = /^\+?\d{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+              document.querySelector('#phone + .error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            if (isValid) {
+              submitBtn.classList.add('loading');
+              submitBtn.textContent = 'Booking...';
+              
+              try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                  method: 'POST',
+                  body: formData
+                });
+                const result = await response.json();
                 
-                // Reset error messages
-                document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Book Appointment';
                 
-                let isValid = true;
-                const service = document.getElementById('service').value;
-                const date = document.getElementById('date').value;
-                const time = document.getElementById('time').value;
-                const name = document.getElementById('name').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
-                const package = document.getElementById('package').value;
-                const notes = document.getElementById('notes').value;
-                const submitBtn = this.querySelector('button[type="submit"]');
-                
-                // Validate service
-                if (!service) {
-                    document.querySelector('#service + .error-message').style.display = 'block';
-                    isValid = false;
+                if (result.success) {
+                  alert(result.message);
+                  appointmentForm.reset();
+                  window.location.hash = '#home';
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                  throw new Error(result.message);
                 }
-                
-                // Validate date
-                const today = new Date().toISOString().split('T')[0];
-                if (date < today) {
-                    document.querySelector('#date + .error-message').style.display = 'block';
-                    isValid = false;
-                }
-                
-                // Validate time
-                if (!time || time < '09:00' || time > '18:00') {
-                    document.querySelector('#time + .error-message').style.display = 'block';
-                    isValid = false;
-                }
-                
-                // Validate name
-                if (!name.trim()) {
-                    document.querySelector('#name + .error-message').style.display = 'block';
-                    isValid = false;
-                }
-                
-                // Validate email
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    document.querySelector('#email + .error-message').style.display = 'block';
-                    isValid = false;
-                }
-                
-                // Validate phone
-                const phoneRegex = /^\+?\d{10,15}$/;
-                if (!phoneRegex.test(phone)) {
-                    document.querySelector('#phone + .error-message').style.display = 'block';
-                    isValid = false;
-                }
-                
-                if (isValid) {
-                    submitBtn.classList.add('loading');
-                    submitBtn.textContent = 'Booking...';
-                    
-                    try {
-                        const formData = new FormData(this);
-                        const response = await fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            mode: 'no-cors' // Use no-cors to bypass CORS restrictions
-                        });
-
-                        // Since mode is 'no-cors', we can't read the response body directly
-                        // Assume success if the request doesn't throw an error
-                        submitBtn.classList.remove('loading');
-                        submitBtn.textContent = 'Book Appointment';
-
-                        // Simulate success since we can't read the response
-                        alert('Your appointment has been booked successfully! Check your email for confirmation.');
-                        appointmentForm.reset();
-                        window.location.hash = '#home';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } catch (error) {
-                        submitBtn.classList.remove('loading');
-                        submitBtn.textContent = 'Book Appointment';
-                        console.error('Fetch error:', error);
-                        alert('Error: Failed to connect to the server. Please try again later or contact support.');
-                    }
-                }
-            });
+              } catch (error) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Book Appointment';
+                console.error('Fetch error:', error.message);
+                alert('Error: ' + error.message + '. Check console for details.');
+              }
+            }
+          });
         }
     </script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bf2097ae6abf69',t:'MTc0NjYwNDIzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93c0507dbcd47bca',t:'MTc0NjYxNjY4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
